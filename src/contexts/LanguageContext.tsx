@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { useAutoTranslate } from '../hooks/useAutoTranslate';
-import LoadingOverlay from '../components/LoadingOverlay';
 
 interface LanguageContextType {
   language: 'tr' | 'en';
@@ -20,8 +18,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return (saved as 'tr' | 'en') || 'tr';
   });
   const [isTranslating, setIsTranslating] = useState(false);
-
-  const loading = useAutoTranslate(language);
 
   useEffect(() => {
     localStorage.setItem('language', language);
@@ -62,7 +58,6 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   return (
     <LanguageContext.Provider value={{ language, toggleLanguage, translate, isTranslating }}>
       {children}
-      {loading && <LoadingOverlay message="Sayfa otomatik olarak çevriliyor..." />}
     </LanguageContext.Provider>
   );
 };

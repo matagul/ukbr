@@ -1,10 +1,19 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Briefcase, MapPin, Tag, Plus } from 'lucide-react';
+import { decryptAES } from '../utils/encryption';
+import { useAuth } from '../contexts/AuthContext';
+
+function maskPhone(phone: string) {
+  if (!phone) return '';
+  return phone.replace(/(\d{3})\s?(\d{3})\s?(\d{2})\s?(\d{2})$/, '+90 XXX XXX XX $4');
+}
 
 const Jobs = () => {
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
+  const { user } = useAuth();
+  const [jobs, setJobs] = useState<any[]>([]);
 
   const cities = [
     'Lefkoşa', 'Girne', 'Gazimağusa', 'İskele', 'Güzelyurt', 'Lefke'
@@ -15,75 +24,39 @@ const Jobs = () => {
     'Temizlik', 'Bahçıvan', 'Klimacı', 'İnşaat', 'Cam Ustası'
   ];
 
-  const jobs = [
-    {
-      id: 1,
-      title: "Ev Elektrik Tesisatı Tamiratı",
-      description: "Evimizde elektrik kesintisi sorunu yaşıyoruz. Pano kontrolü ve gerekli tamiratin yapılması gerekiyor. Acil müdahale bekliyoruz.",
-      contactName: "Ayşe Kaya",
-      contactPhone: "+90 392 555 02 02",
-      contactEmail: "ayse@example.com",
-      budget: "500-1000 TL",
-      city: "Lefkoşa",
-      category: "Elektrikçi",
-      createdAt: "2025-01-10"
-    },
-    {
-      id: 2,
-      title: "Banyo Tesisatı Tamiri",
-      description: "Banyo lavabosunda sızıntı var. Su basıncı düşük. Acil müdahale gerekiyor. Malzeme temin edilecek.",
-      contactName: "Mehmet Yılmaz",
-      contactPhone: "+90 392 555 03 03",
-      budget: "300-500 TL",
-      city: "Girne",
-      category: "Tesisatçı",
-      createdAt: "2025-01-09"
-    },
-    {
-      id: 3,
-      title: "Ev Boyası İşi",
-      description: "2+1 daire iç cephe boyası yapılacak. Malzeme dahil fiyat istiyoruz. Kaliteli iş arıyoruz.",
-      contactName: "Fatma Demir",
-      contactPhone: "+90 392 555 04 04",
-      budget: "1500-2000 TL",
-      city: "Gazimağusa",
-      category: "Boyacı",
-      createdAt: "2025-01-08"
-    },
-    {
-      id: 4,
-      title: "Ofis Temizliği",
-      description: "Haftalık ofis temizliği için temizlik görevlisi arıyoruz. Düzenli iş imkanı.",
-      contactName: "Ali Özkan",
-      contactPhone: "+90 392 555 10 10",
-      budget: "800 TL/ay",
-      city: "Lefkoşa",
-      category: "Temizlik",
-      createdAt: "2025-01-07"
-    },
-    {
-      id: 5,
-      title: "Mutfak Dolabı Yapımı",
-      description: "Mutfak için özel ölçü dolap yapımı. Tasarım ve montaj dahil. Kaliteli malzeme kullanılacak.",
-      contactName: "Zeynep Kara",
-      contactPhone: "+90 392 555 11 11",
-      budget: "3000-4000 TL",
-      city: "İskele",
-      category: "Marangoz",
-      createdAt: "2025-01-06"
-    },
-    {
-      id: 6,
-      title: "Bahçe Düzenleme",
-      description: "Villa bahçesi peyzaj düzenlemesi. Çim ekimi, ağaç dikimi ve sulama sistemi kurulumu.",
-      contactName: "Hasan Çelik",
-      contactPhone: "+90 392 555 12 12",
-      budget: "2000-3000 TL",
-      city: "Girne",
-      category: "Bahçıvan",
-      createdAt: "2025-01-05"
+  React.useEffect(() => {
+    // Fetch encrypted jobs from Supabase
+    async function fetchJobs() {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL || '',
+        import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+      );
+      const { data } = await supabase.from('jobs').select('*');
+      let encryptionKey = localStorage.getItem('encryptionKey');
+      if (!encryptionKey && user && (user.user_metadata?.role === 'admin' || user.user_metadata?.isSuperAdmin)) {
+        const { data: settings } = await supabase.from('settings').select('x_secret').single();
+        if (settings && settings.x_secret) encryptionKey = settings.x_secret;
+      }
+      const decrypted = await Promise.all((data || []).map(async (j: any) => {
+        let contactPhone = '';
+        let contactEmail = '';
+        if (encryptionKey && (user && (user.user_metadata?.role === 'admin' || user.user_metadata?.isSuperAdmin || user.id === j.created_by))) {
+          contactPhone = j.contact_phone ? await decryptAES(j.contact_phone, encryptionKey) : '';
+          contactEmail = j.contact_email ? await decryptAES(j.contact_email, encryptionKey) : '';
+        } else {
+          contactPhone = j.contact_phone ? maskPhone(j.contact_phone) : '';
+        }
+        return {
+          ...j,
+          contactPhone,
+          contactEmail,
+        };
+      }));
+      setJobs(decrypted);
     }
-  ];
+    fetchJobs();
+  }, [user]);
 
   const filteredJobs = jobs.filter(job => {
     return (selectedCity === '' || job.city === selectedCity) &&
@@ -102,7 +75,9 @@ const Jobs = () => {
         <h2 className="text-lg font-semibold mb-4 dark:text-white">Filtrele</h2>
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-48">
+            <label htmlFor="city-select" className="sr-only">Şehir</label>
             <select 
+              id="city-select"
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -114,7 +89,9 @@ const Jobs = () => {
             </select>
           </div>
           <div className="flex-1 min-w-48">
+            <label htmlFor="category-select" className="sr-only">Kategori</label>
             <select 
+              id="category-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white dark:border-gray-600"
@@ -161,20 +138,26 @@ const Jobs = () => {
             </div>
             
             <div className="flex gap-2">
-              <a 
-                href={`tel:${job.contactPhone}`}
-                className="flex-1 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors text-center dark:bg-sky-600 dark:hover:bg-sky-700"
-              >
-                Ara
-              </a>
-              <a 
-                href={`https://wa.me/${job.contactPhone.replace(/\s/g, '').replace('+', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-center dark:bg-green-600 dark:hover:bg-green-700"
-              >
-                WhatsApp
-              </a>
+              {job.contactPhone && !job.contactPhone.includes('XXX') ? (
+                <>
+                  <a 
+                    href={`tel:${job.contactPhone}`}
+                    className="flex-1 bg-gray-800 text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors text-center dark:bg-sky-600 dark:hover:bg-sky-700"
+                  >
+                    Ara
+                  </a>
+                  <a 
+                    href={`https://wa.me/${job.contactPhone.replace(/\s/g, '').replace('+', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-center dark:bg-green-600 dark:hover:bg-green-700"
+                  >
+                    WhatsApp
+                  </a>
+                </>
+              ) : (
+                <span className="flex-1 text-gray-400 text-center">Gizli</span>
+              )}
             </div>
           </div>
         ))}

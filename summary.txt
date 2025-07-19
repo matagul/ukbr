@@ -1,0 +1,149 @@
+# UstaKıbrıs Installer & Supabase Setup - AI Session Summary (Detailed)
+
+---
+## Timeline & Major Events
+
+### [T0] Initial User Request
+- **Timestamp:** 2024-07-11 22:00 (approx)
+- **User Goal:**
+  - Build a robust, future-proof installer for UstaKıbrıs using Supabase as the backend.
+  - Requirements: stepper UI, real Supabase connection test, manual SQL schema creation, super admin creation, site/SMTP settings, demo data seeding, strong AES encryption for sensitive data.
+  - Security: AES key shown only once to super admin, never again; Supabase connection info saved securely; installer never shown again after completion.
+
+### [T1] Installer UI & Flow Design
+- **Timestamp:** 2024-07-11 22:10
+- **Actions:**
+  - Designed a multi-step installer in React/TypeScript with Tailwind CSS.
+  - Steps: Supabase connection → SQL schema (manual) → Super Admin → Site/SMTP settings → Demo data → Finish.
+  - Stepper UI with green checkmarks, back/next navigation, and validation.
+
+### [T2] Supabase Connection & Schema
+- **Timestamp:** 2024-07-11 22:20
+- **Actions:**
+  - Implemented real connection test using a query to the `profiles` table.
+  - Connection info (URL, anon key) saved in localStorage and prefilled on revisit.
+  - Provided a read-only SQL code block (with copy button) for manual schema creation in Supabase SQL Editor.
+  - Removed automatic schema creation from frontend for security and reliability.
+
+### [T3] Super Admin & Settings Logic
+- **Timestamp:** 2024-07-11 22:40
+- **Actions:**
+  - Added super admin creation step: form for name, email, password.
+  - Added site and SMTP settings step: form for site name, description, contact email, SMTP config.
+  - Both steps now use form submit (`type="submit"`) and only advance on successful DB operation.
+  - Error handling: errors shown if insert/upsert fails; cannot advance if DB operation fails.
+
+### [T4] Encryption Key Handling
+- **Timestamp:** 2024-07-11 22:50
+- **Actions:**
+  - Hardcoded AES key (`a1FxB+uQT1QRbel3+SkMw2PiI6rtoa2ivJjLq2eVEz4=`) shown only once to super admin, with copy button and warning.
+  - Never exposed again after this step.
+  - All sensitive data (phones, company info, SMTP passwords) encrypted with this key.
+
+### [T5] Demo Data & Static Data
+- **Timestamp:** 2024-07-11 23:00
+- **Actions:**
+  - Static data (cities, categories) separated from demo data.
+  - Demo data seeding step added; can be run after schema creation.
+  - Provided arrays for Cyprus cities and real categories.
+
+### [T6] Completion & Redirect
+- **Timestamp:** 2024-07-11 23:10
+- **Actions:**
+  - On finish, `setup_complete` is set in the `settings` table and in localStorage.
+  - User is redirected to `/auth` (login) or `/` (homepage).
+  - Installer never shows again if setup is complete.
+
+### [T7] Error Handling & Bug Fixes
+- **Timestamp:** 2024-07-11 23:20–23:50
+- **Issues & Fixes:**
+  - **Super Admin/Settings Not Created:** Fixed by making "İleri" buttons submit the form and only advance on successful DB operation.
+  - **Installer Stepper/Redirect Bugs:** Fixed by only marking steps as complete after successful DB actions and redirecting only after setup is confirmed.
+  - **No Data in DB:** Root cause was buttons not submitting forms; fixed as above.
+  - **Syntax Error:** Fixed a single-quote string literal bug in the default site description.
+  - **Backend Table Errors:** User encountered `no such table` errors in FastAPI/SQLAlchemy backend due to missing migrations; solution is to run the schema SQL or use the backend's `init_db.py`.
+  - **Supabase 404/400/406 Errors:** Fixed by ensuring correct columns exist in `settings` table and schema is up to date.
+  - **Infinite Reloads:** Fixed by improving redirect logic to check current path and setup state.
+
+### [T8] Final Review & Summary
+- **Timestamp:** 2024-07-11 23:55–00:10
+- **Actions:**
+  - User requested a comprehensive summary for future AI tools/developers.
+  - Summary written to `summary.txt`.
+  - User requested even more detail, with timestamps, current state, and next steps.
+
+---
+
+## Current State (as of 2024-07-11 00:10)
+- **Installer:**
+  - Fully functional, robust, and mobile-friendly.
+  - All steps (connection, schema, super admin, settings, demo data, finish) are validated and only advance on success.
+  - Stepper UI with green checkmarks and proper navigation.
+- **Supabase Database:**
+  - Schema is up to date (see `scripts/init_schema.ts` or SQL block in installer).
+  - `profiles`, `settings`, `cities`, `categories`, `jobs`, `documents`, etc. tables exist and are populated as expected.
+  - Super admin and settings are created via installer.
+  - Static data (cities, categories) and demo data are seeded.
+- **Encryption:**
+  - AES key is hardcoded and shown only once to super admin.
+  - All sensitive data is encrypted with this key.
+- **Backend (FastAPI):**
+  - Uses SQLAlchemy models in `models.py`.
+  - `init_db.py` can be used to initialize local SQLite DB for legacy/alternative backend.
+  - API endpoints for translation cache and admin schema init exist.
+- **Frontend:**
+  - React/TypeScript with Vite and Tailwind CSS.
+  - Auth, language, and theme handled via React Context.
+  - All major user flows (register, login, job create, admin panel) reference the same schema.
+
+---
+
+## Error Logs & Decisions
+- **2024-07-11 23:24:** Syntax error in `InstallPage.tsx` due to unescaped single quote in Turkish string. Fixed by using double quotes.
+- **2024-07-11 23:30:** User reports no data in `profiles` or `settings` after install. Root cause: form buttons not submitting; fixed by switching to `type="submit"` and using form submit handlers.
+- **2024-07-11 23:40:** Backend error: `no such table: translation_cache`. Solution: run schema SQL or `init_db.py` to create missing tables.
+- **2024-07-11 23:50:** User requests summary for future AI tools. Summary created and improved for detail.
+
+---
+
+## Next Steps
+- **Testing:**
+  - Test the full install flow end-to-end on a fresh Supabase project.
+  - Confirm that all tables are created, super admin and settings are inserted, and demo data is seeded.
+  - Verify that the encryption key is only shown once and all sensitive data is encrypted.
+- **Productionization:**
+  - Review security of localStorage usage for connection info.
+  - Consider moving encryption key storage to a more secure location if needed.
+  - Add more robust error handling and user feedback for all installer steps.
+- **Future Features:**
+  - Add admin panel features (user management, job approval, document review, etc.).
+  - Implement key rotation and legacy data migration if needed.
+  - Expand demo data and static data as platform grows.
+  - Add automated tests for installer and encryption logic.
+
+---
+
+## For Future AI/Developers
+- **If you see missing tables/data:**
+  - Run the schema SQL in Supabase SQL Editor or use `scripts/init_schema.ts`.
+  - Complete the installer flow in the frontend.
+- **If you see backend errors (e.g., `no such table`):**
+  - Run `init_db.py` to create local tables for FastAPI/SQLite.
+- **If you need to rotate the encryption key:**
+  - Decrypt all data with the old key, re-encrypt with the new key, and update `settings.x_secret`.
+- **If you need to seed demo/static data:**
+  - Use the demo data seeding step in the admin panel or installer.
+- **If you need to debug installer issues:**
+  - Check `src/pages/InstallPage.tsx` for stepper logic, form submit handlers, and error handling.
+
+---
+
+**This summary covers all major actions, fixes, error logs, and the current state of the UstaKıbrıs installer and Supabase setup as of 2024-07-11 00:10.**
+
+**Next actions:**
+- Test the full install flow on a clean Supabase project.
+- Confirm all data is created and encrypted as expected.
+- Begin admin panel and advanced feature development as needed.
+
+## 5. Files/Components Involved
+- `

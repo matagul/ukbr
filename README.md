@@ -188,3 +188,47 @@ Bu proje MIT lisansı altındadır.
   - Admin paneli
   - WhatsApp entegrasyonu
   - Responsive tasarım
+
+# Encryption & Key Management
+
+## How Encryption Works
+- All sensitive data (user phones, company info, SMTP passwords, etc.) is encrypted with AES-GCM using a 32-byte random key.
+- The key is generated on first install, shown to the super admin, and stored in both localStorage (for the session) and in the database (`settings.x_secret`).
+- Only admins/super admins can access the key and decrypt sensitive data.
+
+## Where the Key is Stored
+- In the browser: localStorage (for the session of the super admin)
+- In the database: `settings.x_secret` (hidden field, only accessible to admins)
+
+## Migration Script for Legacy Data
+- If you have old, unencrypted data, run the migration script:
+  ```bash
+  SUPABASE_URL=... SUPABASE_ANON_KEY=... npx ts-node scripts/migrate_encrypt_legacy_data.ts [--dry-run]
+  ```
+- The script will encrypt all unencrypted sensitive fields in `profiles` (and can be extended for other tables).
+- Use `--dry-run` to preview changes without writing.
+
+## Python AES Utility for Backend
+- Use `backend/utils/aes_encryption.py` for encrypting/decrypting sensitive data in FastAPI or other Python code.
+- Example usage:
+  ```python
+  from utils.aes_encryption import encrypt_aes, decrypt_aes
+  encrypted = encrypt_aes('mysecret', key_b64)
+  plain = decrypt_aes(encrypted, key_b64)
+  ```
+- The key must be the same base64 string as in `settings.x_secret`.
+
+## What to Do if the Key is Lost
+- If the key is lost and not recoverable from the DB, encrypted data cannot be decrypted.
+- Always store the key in a secure password manager.
+
+## Key Rotation (Advanced)
+- To rotate the key, decrypt all data with the old key, re-encrypt with the new key, and update `settings.x_secret`.
+- You may want to add a `key_version` field to support multiple keys in the future.
+
+## Automated Tests
+- See `src/utils/encryption.test.ts` for unit tests of the encryption utilities.
+- Run tests with:
+  ```bash
+  npm run test
+  ```

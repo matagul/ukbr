@@ -2,18 +2,16 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  phone: string;
-  city: string;
-  category: string;
-  isActive: boolean;
-  isBanned: boolean;
-  banReason?: string;
-  banLevel: 'none' | 'warning' | 'temporary' | 'permanent';
-  banExpiresAt?: Date;
-  createdAt: Date;
-  lastLoginAt?: Date;
-  activityHistory: ActivityLog[];
-  documents: Document[];
+  phone?: string;
+  role?: 'buyer' | 'provider' | 'admin';
+  companyName?: string;
+  companyDescription?: string;
+  companyPhone?: string;
+  companyAddress?: string;
+  companyWebsite?: string;
+  bannerUrl?: string;
+  profileUrl?: string;
+  isSuperAdmin?: boolean;
 }
 
 export interface ActivityLog {
@@ -96,4 +94,3 @@ export interface AdminAction {
   timestamp: Date;
   ipAddress: string;
 }
-</parameter>

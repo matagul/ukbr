@@ -35,6 +35,7 @@ const StarRating: React.FC<StarRatingProps> = ({
           onClick={() => handleStarClick(star)}
           disabled={readonly}
           className={`${readonly ? 'cursor-default' : 'cursor-pointer hover:scale-110'} transition-transform`}
+          aria-label={`Yıldız ver ${star}`}
         >
           <Star
             className={`${sizeClasses[size]} ${

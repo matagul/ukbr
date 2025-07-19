@@ -4,12 +4,22 @@ import StarRating from '../components/StarRating';
 import ReviewModal from '../components/ReviewModal';
 import JobHistoryCard from '../components/JobHistoryCard';
 import toast from 'react-hot-toast';
+import { decryptAES } from '../utils/encryption';
+import { useAuth } from '../contexts/AuthContext';
+
+function maskPhone(phone: string) {
+  // Mask all but last 4 digits
+  if (!phone) return '';
+  return phone.replace(/(\d{3})\s?(\d{3})\s?(\d{2})\s?(\d{2})$/, '+90 XXX XXX XX $4');
+}
 
 const Craftsmen = () => {
   const [selectedCity, setSelectedCity] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [reviewModalOpen, setReviewModalOpen] = useState(false);
   const [selectedCraftsman, setSelectedCraftsman] = useState<any>(null);
+  const { user } = useAuth();
+  const [craftsmen, setCraftsmen] = useState<any[]>([]);
 
   const cities = [
     'Lefkoşa', 'Girne', 'Gazimağusa', 'İskele', 'Güzelyurt', 'Lefke'
@@ -20,87 +30,54 @@ const Craftsmen = () => {
     'Temizlik', 'Bahçıvan', 'Klimacı', 'İnşaat', 'Cam Ustası'
   ];
 
-  const craftsmen = [
-    {
-      id: 1,
-      name: "Mehmet Öztürk",
-      category: "Elektrikçi",
-      city: "Lefkoşa",
-      experience: 15,
-      description: "15 yıllık deneyimim ile elektrik tesisatı, aydınlatma ve pano işleri yapıyorum. Kaliteli iş garantisi.",
-      phone: "+90 392 555 01 01",
-      email: "mehmet@example.com",
-      averageRating: 4.8,
-      totalReviews: 23,
-      completedJobs: 156,
-      successRate: 98
-    },
-    {
-      id: 2,
-      name: "Ali Kaya",
-      category: "Tesisatçı",
-      city: "Girne",
-      experience: 10,
-      description: "Su tesisatı, kalorifer ve klima montajı konularında uzmanım. 7/24 acil servis.",
-      phone: "+90 392 555 05 05",
-      averageRating: 4.6,
-      totalReviews: 18,
-      completedJobs: 89,
-      successRate: 95
-    },
-    {
-      id: 3,
-      name: "Hasan Demir",
-      category: "Boyacı",
-      city: "Gazimağusa",
-      experience: 8,
-      description: "İç ve dış cephe boyası, dekoratif boyama işleri yapıyorum. Malzeme dahil hizmet.",
-      phone: "+90 392 555 06 06",
-      averageRating: 4.9,
-      totalReviews: 31,
-      completedJobs: 124,
-      successRate: 97
-    },
-    {
-      id: 4,
-      name: "Fatma Yılmaz",
-      category: "Temizlik",
-      city: "Lefkoşa",
-      experience: 5,
-      description: "Ev ve ofis temizliği, cam silme, halı yıkama hizmetleri veriyorum.",
-      phone: "+90 392 555 07 07",
-      averageRating: 4.7,
-      totalReviews: 42,
-      completedJobs: 203,
-      successRate: 99
-    },
-    {
-      id: 5,
-      name: "Osman Çelik",
-      category: "Marangoz",
-      city: "Girne",
-      experience: 20,
-      description: "Mobilya yapımı, tadilat ve onarım işleri. Özel tasarım mobilyalar.",
-      phone: "+90 392 555 08 08",
-      averageRating: 4.5,
-      totalReviews: 15,
-      completedJobs: 67,
-      successRate: 94
-    },
-    {
-      id: 6,
-      name: "Ayşe Kara",
-      category: "Bahçıvan",
-      city: "İskele",
-      experience: 7,
-      description: "Bahçe düzenleme, peyzaj, bitki bakımı ve sulama sistemleri.",
-      phone: "+90 392 555 09 09",
-      averageRating: 4.4,
-      totalReviews: 12,
-      completedJobs: 45,
-      successRate: 91
+  React.useEffect(() => {
+    // Fetch encrypted craftsmen from Supabase
+    async function fetchCraftsmen() {
+      const { createClient } = await import('@supabase/supabase-js');
+      const supabase = createClient(
+        import.meta.env.VITE_SUPABASE_URL || '',
+        import.meta.env.VITE_SUPABASE_ANON_KEY || ''
+      );
+      const { data } = await supabase.from('profiles').select('*').eq('role', 'provider');
+      let encryptionKey = localStorage.getItem('encryptionKey');
+      if (!encryptionKey && user && (user.user_metadata?.role === 'admin' || user.user_metadata?.isSuperAdmin)) {
+        const { data: settings } = await supabase.from('settings').select('x_secret').single();
+        if (settings && settings.x_secret) encryptionKey = settings.x_secret;
+      }
+      const decrypted = await Promise.all((data || []).map(async (c: any) => {
+        let phone = '';
+        let email = '';
+        let companyName = '';
+        let companyDescription = '';
+        let companyPhone = '';
+        let companyAddress = '';
+        let companyWebsite = '';
+        if (encryptionKey && (user && (user.user_metadata?.role === 'admin' || user.user_metadata?.isSuperAdmin || user.id === c.id))) {
+          phone = c.phone ? await decryptAES(c.phone, encryptionKey) : '';
+          email = c.email;
+          companyName = c.company_name ? await decryptAES(c.company_name, encryptionKey) : '';
+          companyDescription = c.company_description ? await decryptAES(c.company_description, encryptionKey) : '';
+          companyPhone = c.company_phone ? await decryptAES(c.company_phone, encryptionKey) : '';
+          companyAddress = c.company_address ? await decryptAES(c.company_address, encryptionKey) : '';
+          companyWebsite = c.company_website ? await decryptAES(c.company_website, encryptionKey) : '';
+        } else {
+          phone = c.phone ? maskPhone(c.phone) : '';
+        }
+        return {
+          ...c,
+          phone,
+          email,
+          companyName,
+          companyDescription,
+          companyPhone,
+          companyAddress,
+          companyWebsite,
+        };
+      }));
+      setCraftsmen(decrypted);
     }
-  ];
+    fetchCraftsmen();
+  }, [user]);
 
   const filteredCraftsmen = craftsmen.filter(craftsman => {
     return (selectedCity === '' || craftsman.city === selectedCity) &&
@@ -127,7 +104,9 @@ const Craftsmen = () => {
         <h2 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Filtrele</h2>
         <div className="flex flex-wrap gap-4">
           <div className="flex-1 min-w-48">
+            <label htmlFor="city-select" className="sr-only">Şehir</label>
             <select 
+              id="city-select"
               value={selectedCity}
               onChange={(e) => setSelectedCity(e.target.value)}
               className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white"
@@ -139,7 +118,9 @@ const Craftsmen = () => {
             </select>
           </div>
           <div className="flex-1 min-w-48">
+            <label htmlFor="category-select" className="sr-only">Kategori</label>
             <select 
+              id="category-select"
               value={selectedCategory}
               onChange={(e) => setSelectedCategory(e.target.value)}
               className="w-full border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white"
@@ -199,20 +180,26 @@ const Craftsmen = () => {
             </div>
             
             <div className="flex gap-2 mb-3">
-              <a 
-                href={`tel:${craftsman.phone}`}
-                className="flex-1 bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-center"
-              >
-                Ara
-              </a>
-              <a 
-                href={`https://wa.me/${craftsman.phone.replace(/\s/g, '').replace('+', '')}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-center"
-              >
-                WhatsApp
-              </a>
+              {craftsman.phone && !craftsman.phone.includes('XXX') ? (
+                <>
+                  <a 
+                    href={`tel:${craftsman.phone}`}
+                    className="flex-1 bg-gray-800 dark:bg-gray-700 text-white px-4 py-2 rounded hover:bg-gray-700 dark:hover:bg-gray-600 transition-colors text-center"
+                  >
+                    Ara
+                  </a>
+                  <a 
+                    href={`https://wa.me/${craftsman.phone.replace(/\s/g, '').replace('+', '')}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-center"
+                  >
+                    WhatsApp
+                  </a>
+                </>
+              ) : (
+                <span className="flex-1 text-gray-400 text-center">Gizli</span>
+              )}
             </div>
             
             <button

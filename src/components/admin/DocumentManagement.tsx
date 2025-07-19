@@ -5,9 +5,7 @@ import {
   XCircle, 
   Clock, 
   Eye, 
-  Download,
-  AlertTriangle,
-  Calendar
+  AlertTriangle
 } from 'lucide-react';
 import { Document } from '../../types';
 import toast from 'react-hot-toast';
@@ -167,10 +165,14 @@ const DocumentManagement: React.FC<DocumentManagementProps> = ({
                           {new Date(document.expiresAt).toLocaleDateString('tr-TR')}
                         </span>
                         {isExpired(document.expiresAt) && (
-                          <AlertTriangle className="w-4 h-4 text-red-500" title="Süresi dolmuş" />
+                          <span title="Süresi dolmuş">
+                            <AlertTriangle className="w-4 h-4 text-red-500" />
+                          </span>
                         )}
                         {isExpiringSoon(document.expiresAt) && !isExpired(document.expiresAt) && (
-                          <AlertTriangle className="w-4 h-4 text-yellow-500" title="Süresi yakında dolacak" />
+                          <span title="Süresi yakında dolacak">
+                            <AlertTriangle className="w-4 h-4 text-yellow-500" />
+                          </span>
                         )}
                       </div>
                     ) : (
