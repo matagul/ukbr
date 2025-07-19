@@ -106,7 +106,7 @@
 
 ---
 
-## Next Steps
+## Next Stepss
 - **Testing:**
   - Test the full install flow end-to-end on a fresh Supabase project.
   - Confirm that all tables are created, super admin and settings are inserted, and demo data is seeded.
