@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="bg-gradient-to-br from-primary to-red-600 text-white py-16 -mx-4 mb-12">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-6xl font-bold mb-6">KKTC'nin En Güvenilir Usta Platformu</h1>
+        <p class="text-xl mb-8">Kaliteli usta bul, güvenli iş al. Kıbrıs'ta işin doğru adresi!</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/ustalar" class="bg-white text-primary px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                <i class="fas fa-search mr-2"></i>Usta Ara
+            </a>
+            <a href="/is-ilan-ver" class="bg-accent text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-600 transition-colors">
+                <i class="fas fa-plus mr-2"></i>İş İlanı Ver
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="bg-primary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-users text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Güvenilir Ustalar</h3>
+        <p class="text-gray-600">Deneyimli ve güvenilir ustalarla çalışın. Kalite garantili hizmet.</p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="bg-accent text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-clock text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Hızlı Eşleşme</h3>
+        <p class="text-gray-600">İhtiyacınıza uygun ustayı hızlıca bulun. Zaman kaybetmeyin.</p>
+    </div>
+    
+    <div class="bg-white rounded-lg shadow-md p-6 text-center">
+        <div class="bg-secondary text-white w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-shield-alt text-2xl"></i>
+        </div>
+        <h3 class="text-xl font-semibold mb-2">Güvenli İletişim</h3>
+        <p class="text-gray-600">Güvenli WhatsApp iletişimi. Kişisel verileriniz korunur.</p>
+    </div>
+</div>
+
+{% if recent_jobs %}
+<div class="mb-16">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-secondary">Son İş İlanları</h2>
+        <a href="/is-ilanlari" class="text-primary hover:text-red-600 transition-colors">Tümünü Gör →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for job in recent_jobs %}
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <h3 class="text-lg font-semibold mb-2">{{ job.title }}</h3>
+            <p class="text-gray-600 mb-3">{{ job.description[:100] }}...</p>
+            <div class="flex items-center justify-between text-sm text-gray-500">
+                <span><i class="fas fa-map-marker-alt mr-1"></i>{{ job.city.name }}</span>
+                <span><i class="fas fa-tag mr-1"></i>{{ job.category.name }}</span>
+            </div>
+            <div class="mt-4 flex justify-between items-center">
+                <span class="text-primary font-semibold">{{ job.budget or 'Belirtilmemiş' }}</span>
+                <a href="/is-ilan/{{ job.id }}" class="bg-primary text-white px-4 py-2 rounded hover:bg-red-600 transition-colors">
+                    Detay
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if featured_craftsmen %}
+<div class="mb-16">
+    <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-bold text-secondary">Öne Çıkan Ustalar</h2>
+        <a href="/ustalar" class="text-primary hover:text-red-600 transition-colors">Tümünü Gör →</a>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {% for craftsman in featured_craftsmen %}
+        <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+            <div class="flex items-center mb-4">
+                <div class="bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center mr-3">
+                    <i class="fas fa-user"></i>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold">{{ craftsman.name }}</h3>
+                    <p class="text-gray-600">{{ craftsman.category.name }}</p>
+                </div>
+            </div>
+            <p class="text-gray-600 mb-3">{{ craftsman.description[:100] if craftsman.description else 'Açıklama mevcut değil' }}...</p>
+            <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+                <span><i class="fas fa-map-marker-alt mr-1"></i>{{ craftsman.city.name }}</span>
+                <span><i class="fas fa-calendar mr-1"></i>{{ craftsman.experience_years }} yıl</span>
+            </div>
+            <a href="/usta/{{ craftsman.id }}" class="w-full bg-primary text-white px-4 py-2 rounded hover:bg-red-600 transition-colors block text-center">
+                Profil Görüntüle
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+<div class="bg-gradient-to-r from-accent to-blue-600 text-white py-12 -mx-4 rounded-lg">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-4">Hemen Başlayın!</h2>
+        <p class="text-xl mb-6">Ustanızı bulun veya iş ilanı vererek doğru kişiye ulaşın.</p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+            <a href="/usta-kayit" class="bg-white text-accent px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Usta Olarak Kayıt Ol
+            </a>
+            <a href="/is-ilan-ver" class="bg-secondary text-white px-8 py-3 rounded-lg font-semibold hover:bg-gray-700 transition-colors">
+                İş İlanı Ver
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

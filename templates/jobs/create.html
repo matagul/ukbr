@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}İş İlanı Ver - UstaKıbrıs{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-2xl font-bold text-secondary mb-6">İş İlanı Ver</h1>
+        
+        <form method="post" action="/is-ilan-ver" class="space-y-6">
+            <div>
+                <label for="title" class="block text-sm font-medium text-gray-700 mb-2">İş Başlığı *</label>
+                <input type="text" id="title" name="title" required 
+                       placeholder="Örn: Banyo Tamiratı, Boyacı Aranıyor..."
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+                <label for="description" class="block text-sm font-medium text-gray-700 mb-2">İş Açıklaması *</label>
+                <textarea id="description" name="description" rows="4" required 
+                          placeholder="İş detaylarını, beklentilerinizi ve özel notları yazın..."
+                          class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary"></textarea>
+            </div>
+            
+            <div>
+                <label for="contact_name" class="block text-sm font-medium text-gray-700 mb-2">İletişim Kişisi *</label>
+                <input type="text" id="contact_name" name="contact_name" required 
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+                <label for="contact_phone" class="block text-sm font-medium text-gray-700 mb-2">Telefon Numarası *</label>
+                <input type="tel" id="contact_phone" name="contact_phone" required 
+                       placeholder="+90 392 XXX XX XX"
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+                <label for="contact_email" class="block text-sm font-medium text-gray-700 mb-2">E-posta (Opsiyonel)</label>
+                <input type="email" id="contact_email" name="contact_email" 
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div>
+                <label for="city_id" class="block text-sm font-medium text-gray-700 mb-2">Şehir *</label>
+                <select id="city_id" name="city_id" required 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+                    <option value="">Şehir Seçin</option>
+                    {% for city in cities %}
+                    <option value="{{ city.id }}">{{ city.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="category_id" class="block text-sm font-medium text-gray-700 mb-2">Kategori *</label>
+                <select id="category_id" name="category_id" required 
+                        class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+                    <option value="">Kategori Seçin</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div>
+                <label for="budget" class="block text-sm font-medium text-gray-700 mb-2">Bütçe (Opsiyonel)</label>
+                <input type="text" id="budget" name="budget" 
+                       placeholder="Örn: 1000-2000 TL, Görüşülür..."
+                       class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:ring-2 focus:ring-primary focus:border-primary">
+            </div>
+            
+            <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 class="font-semibold text-blue-800 mb-2">Bilgi</h3>
+                <p class="text-sm text-blue-700">İlanınız yayınlanmadan önce admin kontrolünden geçecektir. Onaylandıktan sonra aktif olacaktır.</p>
+            </div>
+            
+            <div class="flex gap-4">
+                <button type="submit" class="flex-1 bg-primary text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors">
+                    <i class="fas fa-paper-plane mr-2"></i>İlan Ver
+                </button>
+                <a href="/is-ilanlari" class="flex-1 bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition-colors text-center">
+                    İptal
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

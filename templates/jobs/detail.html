@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ job.title }} - UstaKıbrıs{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <div class="mb-6">
+            <h1 class="text-3xl font-bold text-secondary mb-2">{{ job.title }}</h1>
+            <div class="flex items-center gap-4 text-gray-600">
+                <span><i class="fas fa-map-marker-alt mr-1"></i>{{ job.city.name }}</span>
+                <span><i class="fas fa-tag mr-1"></i>{{ job.category.name }}</span>
+                <span><i class="fas fa-calendar mr-1"></i>{{ job.created_at.strftime('%d.%m.%Y') }}</span>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h2 class="text-xl font-semibold mb-4">İş Detayları</h2>
+                <div class="prose max-w-none">
+                    <p class="text-gray-600 leading-relaxed">{{ job.description }}</p>
+                </div>
+                
+                {% if job.budget %}
+                <div class="mt-6 bg-green-50 border border-green-200 rounded-lg p-4">
+                    <h3 class="font-semibold text-green-800 mb-1">Bütçe</h3>
+                    <p class="text-green-700">{{ job.budget }}</p>
+                </div>
+                {% endif %}
+            </div>
+            
+            <div>
+                <h2 class="text-xl font-semibold mb-4">İletişim Bilgileri</h2>
+                <div class="bg-gray-50 rounded-lg p-6">
+                    <div class="space-y-3 mb-6">
+                        <div class="flex items-center">
+                            <i class="fas fa-user text-gray-500 mr-3"></i>
+                            <span>{{ job.contact_name }}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="fas fa-phone text-gray-500 mr-3"></i>
+                            <span>{{ job.contact_phone }}</span>
+                        </div>
+                        {% if job.contact_email %}
+                        <div class="flex items-center">
+                            <i class="fas fa-envelope text-gray-500 mr-3"></i>
+                            <span>{{ job.contact_email }}</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="space-y-3">
+                        <a href="https://wa.me/{{ job.contact_phone.replace(' ', '').replace('-', '') }}" 
+                           target="_blank" 
+                           class="w-full bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors flex items-center justify-center">
+                            <i class="fab fa-whatsapp mr-2"></i>WhatsApp ile İletişim
+                        </a>
+                        <a href="tel:{{ job.contact_phone }}" 
+                           class="w-full bg-primary text-white px-6 py-3 rounded-lg hover:bg-red-600 transition-colors flex items-center justify-center">
+                            <i class="fas fa-phone mr-2"></i>Telefon Et
+                        </a>
+                        {% if job.contact_email %}
+                        <a href="mailto:{{ job.contact_email }}" 
+                           class="w-full bg-secondary text-white px-6 py-3 rounded-lg hover:bg-gray-700 transition-colors flex items-center justify-center">
+                            <i class="fas fa-envelope mr-2"></i>E-posta Gönder
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 pt-6 border-t">
+            <a href="/is-ilanlari" class="bg-gray-300 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-400 transition-colors">
+                <i class="fas fa-arrow-left mr-2"></i>Geri Dön
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

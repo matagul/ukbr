@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}İş İlanları - UstaKıbrıs{% endblock %}
+
+{% block content %}
+<div class="mb-8">
+    <h1 class="text-3xl font-bold text-secondary mb-4">İş İlanları</h1>
+    <p class="text-gray-600">KKTC'deki güncel iş ilanlarını keşfedin</p>
+</div>
+
+<div class="bg-white rounded-lg shadow-md p-6 mb-8">
+    <h2 class="text-lg font-semibold mb-4">Filtrele</h2>
+    <form method="get" class="flex flex-wrap gap-4">
+        <div class="flex-1 min-w-48">
+            <select name="city_id" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                <option value="">Tüm Şehirler</option>
+                {% for city in cities %}
+                <option value="{{ city.id }}" {% if city.id == selected_city %}selected{% endif %}>
+                    {{ city.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="flex-1 min-w-48">
+            <select name="category_id" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                <option value="">Tüm Kategoriler</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if category.id == selected_category %}selected{% endif %}>
+                    {{ category.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="bg-primary text-white px-6 py-2 rounded-lg hover:bg-red-600 transition-colors">
+            <i class="fas fa-search mr-2"></i>Filtrele
+        </button>
+    </form>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for job in jobs %}
+    <div class="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+        <h3 class="text-lg font-semibold mb-2">{{ job.title }}</h3>
+        <p class="text-gray-600 mb-3">{{ job.description[:100] }}...</p>
+        
+        <div class="flex items-center justify-between text-sm text-gray-500 mb-4">
+            <span><i class="fas fa-map-marker-alt mr-1"></i>{{ job.city.name }}</span>
+            <span><i class="fas fa-tag mr-1"></i>{{ job.category.name }}</span>
+        </div>
+        
+        <div class="flex items-center justify-between mb-4">
+            <span class="text-primary font-semibold">{{ job.budget or 'Belirtilmemiş' }}</span>
+            <span class="text-xs text-gray-400">{{ job.created_at.strftime('%d.%m.%Y') }}</span>
+        </div>
+        
+        <div class="flex gap-2">
+            <a href="/is-ilan/{{ job.id }}" class="flex-1 bg-secondary text-white px-4 py-2 rounded hover:bg-gray-700 transition-colors text-center">
+                Detay
+            </a>
+            <a href="https://wa.me/{{ job.contact_phone.replace(' ', '').replace('-', '') }}" 
+               target="_blank" 
+               class="flex-1 bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors text-center">
+                <i class="fab fa-whatsapp mr-1"></i>İletişim
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+{% if not jobs %}
+<div class="text-center py-12">
+    <i class="fas fa-briefcase text-6xl text-gray-300 mb-4"></i>
+    <h3 class="text-xl font-semibold text-gray-600 mb-2">İş İlanı Bulunamadı</h3>
+    <p class="text-gray-500">Aradığınız kriterlere uygun iş ilanı bulunmamaktadır.</p>
+</div>
+{% endif %}
+
+<div class="mt-8 text-center">
+    <a href="/is-ilan-ver" class="bg-primary text-white px-8 py-3 rounded-lg hover:bg-red-600 transition-colors inline-block">
+        <i class="fas fa-plus mr-2"></i>İş İlanı Ver
+    </a>
+</div>
+{% endblock %}

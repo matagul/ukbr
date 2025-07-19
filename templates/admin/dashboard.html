@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - UstaKıbrıs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'primary': '#E11D48',
+                        'secondary': '#1F2937',
+                        'accent': '#38BDF8',
+                        'light': '#F9FAFB'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen">
+    <nav class="bg-secondary text-white p-4">
+        <div class="container mx-auto flex items-center justify-between">
+            <h1 class="text-xl font-bold">UstaKıbrıs - Admin Panel</h1>
+            <div class="flex items-center space-x-4">
+                <a href="/" class="hover:text-gray-300 transition-colors">Ana Sayfa</a>
+                <a href="/admin" class="hover:text-gray-300 transition-colors">Çıkış</a>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="container mx-auto p-8">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600">Bekleyen İş İlanları</h3>
+                        <p class="text-3xl font-bold text-primary">{{ pending_jobs }}</p>
+                    </div>
+                    <i class="fas fa-clock text-4xl text-gray-400"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600">Toplam İş İlanı</h3>
+                        <p class="text-3xl font-bold text-accent">{{ total_jobs }}</p>
+                    </div>
+                    <i class="fas fa-briefcase text-4xl text-gray-400"></i>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h3 class="text-lg font-semibold text-gray-600">Kayıtlı Usta</h3>
+                        <p class="text-3xl font-bold text-green-600">{{ total_craftsmen }}</p>
+                    </div>
+                    <i class="fas fa-users text-4xl text-gray-400"></i>
+                </div>
+            </div>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Hızlı İşlemler</h2>
+                <div class="space-y-3">
+                    <a href="/admin/jobs" class="w-full bg-primary text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors block text-center">
+                        <i class="fas fa-briefcase mr-2"></i>İş İlanlarını Yönet
+                    </a>
+                    <a href="/admin/craftsmen" class="w-full bg-accent text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors block text-center">
+                        <i class="fas fa-users mr-2"></i>Ustaları Yönet
+                    </a>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-xl font-semibold mb-4">Sistem Bilgileri</h2>
+                <div class="text-sm text-gray-600">
+                    <p>Versiyon: 1.0.0</p>
+                    <p>Seviye: MVP</p>
+                    <p>Veritabanı: SQLite</p>
+                    <p>Sunucu: FastAPI</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

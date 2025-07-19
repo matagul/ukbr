@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block title %}Hakkımızda - UstaKıbrıs{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="bg-white rounded-lg shadow-md p-8">
+        <h1 class="text-3xl font-bold text-secondary mb-6">Hakkımızda</h1>
+        
+        <div class="prose max-w-none">
+            <p class="text-lg text-gray-600 mb-6">
+                UstaKıbrıs, Kuzey Kıbrıs Türk Cumhuriyeti'nde faaliyet gösteren ustalar ve iş sahiplerini 
+                bir araya getiren güvenilir bir platformdur.
+            </p>
+            
+            <h2 class="text-2xl font-semibold text-secondary mb-4">Misyonumuz</h2>
+            <p class="text-gray-600 mb-6">
+                Kaliteli hizmet arayan müşteriler ile deneyimli ustalar arasında güvenli ve hızlı bir 
+                köprü kurmak. KKTC'deki iş gücü potansiyelini dijital platformda buluşturarak 
+                ekonomiye katkı sağlamak.
+            </p>
+            
+            <h2 class="text-2xl font-semibold text-secondary mb-4">Neden UstaKıbrıs?</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-primary mb-2">Güvenilir Platform</h3>
+                    <p class="text-sm text-gray-600">Tüm ilanlar admin kontrolünden geçer</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-primary mb-2">Hızlı Eşleşme</h3>
+                    <p class="text-sm text-gray-600">Konum ve kategori bazlı akıllı filtreleme</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-primary mb-2">Yerel Odak</h3>
+                    <p class="text-sm text-gray-600">KKTC'ye özel tasarım ve içerik</p>
+                </div>
+                <div class="bg-gray-50 p-4 rounded-lg">
+                    <h3 class="font-semibold text-primary mb-2">Kolay İletişim</h3>
+                    <p class="text-sm text-gray-600">WhatsApp entegrasyonu ile anında iletişim</p>
+                </div>
+            </div>
+            
+            <h2 class="text-2xl font-semibold text-secondary mb-4">Vizyonumuz</h2>
+            <p class="text-gray-600 mb-6">
+                KKTC'nin dijital iş gücü platformu olarak, tüm meslek dallarında en kapsamlı ve 
+                güvenilir hizmet sağlayıcı olmak. Gelecekte yapay zeka desteğiyle daha akıllı 
+                eşleştirmeler sunmak.
+            </p>
+            
+            <div class="bg-primary text-white p-6 rounded-lg text-center">
+                <h3 class="text-xl font-semibold mb-2">Bizimle İletişime Geçin</h3>
+                <p class="mb-4">Sorularınız için her zaman buradayız!</p>
+                <a href="/iletisim" class="bg-white text-primary px-6 py-2 rounded-lg hover:bg-gray-100 transition-colors">
+                    İletişim Sayfası
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
