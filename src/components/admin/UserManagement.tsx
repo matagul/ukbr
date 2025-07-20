@@ -12,7 +12,7 @@ import {
 } from 'lucide-react';
 import { User, AdminAction } from '../../types';
 import toast from 'react-hot-toast';
-import { decryptAES } from '../../utils/encryption';
+import { decryptAES } from '../../utils/security';
 import { useAuth } from '../../contexts/AuthContext';
 
 interface UserManagementProps {

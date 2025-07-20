@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { User, Briefcase, Mail, Phone, MapPin, Image, Globe, Edit2, Save, X } from 'lucide-react';
-import { encryptAES } from '../utils/encryption';
+import { encryptAES } from '../utils/security';
 
 const ProfilePage: React.FC = () => {
   const { user } = useAuth();
